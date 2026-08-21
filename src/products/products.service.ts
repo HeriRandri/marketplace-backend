@@ -6,6 +6,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ProductsService {
+
+  
   // private readonly products: Product [] = [
   //   {
   //     id:1,
@@ -25,7 +27,28 @@ export class ProductsService {
 
   constructor (private readonly prisma:PrismaService){}
 
+    private async ensureCategoryExists(categoryId: number) {
+    const category = await this.prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException(
+        `Category with id ${categoryId} not found`,
+      );
+    }
+  }
+
+  // create(), findAll(), findOne(), update(), remove()
+
+
   async create(createProductDto:CreateProductDto){
+
+      if (createProductDto.categoryId !== undefined) {
+    await this.ensureCategoryExists(
+      createProductDto.categoryId,
+    );
+  }
     return this.prisma.product.create({
       data:createProductDto,
     })
@@ -51,7 +74,10 @@ export class ProductsService {
 
   async findOne(id: number){
     const product  = await this.prisma.product.findUnique({
-      where :{id}
+      where :{id},
+      include : {
+        category : true
+      }
     });
 
       if (!product) {
@@ -63,6 +89,12 @@ export class ProductsService {
 
  async update(id: number, updateProductDto: UpdateProductDto) {
    await this.findOne(id);
+  if (updateProductDto.categoryId !== undefined) {
+    await this.ensureCategoryExists(
+      updateProductDto.categoryId,
+    );
+  }
+
   const product  = await this.prisma.product.update({
     where:{id},
     data: updateProductDto
@@ -90,3 +122,4 @@ export class ProductsService {
   // return product
   }
 }
+

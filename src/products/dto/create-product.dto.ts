@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsPositive,
   IsString,
+  IsOptional,
   Min,
 } from 'class-validator';
 
@@ -23,4 +24,9 @@ export class CreateProductDto {
     @Min(0)
     @IsInt()
     stock: number;
+
+    @IsOptional()
+    @IsInt()
+    @IsPositive()
+    categoryId?: number;
 }
