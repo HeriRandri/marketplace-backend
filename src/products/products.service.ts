@@ -51,6 +51,9 @@ export class ProductsService {
   }
     return this.prisma.product.create({
       data:createProductDto,
+      include: {
+        category:true
+      }
     })
        // const newProduct: Product = {
     //   id:Date.now(),
@@ -67,6 +70,9 @@ export class ProductsService {
     return this.prisma.product.findMany({
       orderBy: {
         createdAt:'desc'
+      }, 
+      include:{
+        category : true
       }
     })
     // return this.products;
@@ -95,10 +101,13 @@ export class ProductsService {
     );
   }
 
-  const product  = await this.prisma.product.update({
-    where:{id},
-    data: updateProductDto
-  })
+  const product  =  this.prisma.product.update({
+  where: { id },
+  data: updateProductDto,
+  include: {
+    category: true,
+  },
+});
 
     if (!product) {
         throw new NotFoundException (`Product with id ${id} not found`);
